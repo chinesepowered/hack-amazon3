@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Refill · pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#2a2119; --muted:#7c6c5c; --paper:#fbf5ea; --teal:#1d5c58; --crit:#c8431a; --low:#d98a12; --ok:#4f7d5c; --rx:#6a55c8; --line:#e8dac5; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; height:100%; overflow:hidden; background:#1c1713; }
+  body { font-family:"Instrument Sans", "Segoe UI", system-ui, sans-serif; color:var(--ink); }
+  .deck { position:absolute; left:50%; top:50%; width:1600px; height:900px; transform:translate(-50%,-50%) scale(var(--s,1)); }
+  .slide { position:absolute; inset:0; padding:84px 96px; display:none; background:radial-gradient(900px 520px at 0% 0%, rgba(255,214,160,.45), transparent 70%), var(--paper); overflow:hidden; }
+  .slide.on { display:block; animation:in .45s ease both; }
+  @keyframes in { from { opacity:0; transform:translateY(10px); } }
+  .kicker { font-size:18px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  h1, h2 { font-family:"Fraunces", Georgia, serif; font-weight:600; letter-spacing:-.015em; margin:0; }
+  h1 { font-size:104px; line-height:.95; }
+  h2 { font-size:64px; line-height:1.04; }
+  .lede { font-size:30px; line-height:1.35; color:#4a3d31; }
+  .logo { display:flex; align-items:center; gap:18px; }
+  .logo .mark { width:72px; height:72px; border-radius:20px; background:var(--teal); color:#fff; display:grid; place-items:center; font:600 40px "Fraunces", Georgia, serif; }
+  .tags { display:flex; gap:12px; flex-wrap:wrap; margin-top:34px; }
+  .tag { font-size:19px; font-weight:600; padding:8px 16px; border-radius:999px; background:#efe4d2; color:#4a3d31; }
+  .tag.t { background:#d9ebe8; color:#174c48; } .tag.v { background:#e8e3fb; color:#3d2f8f; }
+  .foot { position:absolute; left:96px; right:96px; bottom:40px; display:flex; justify-content:space-between; font-size:17px; color:var(--muted); }
+  .card { background:#fffaf1; border-radius:28px; box-shadow:0 30px 60px -34px rgba(60,40,20,.55); border:1px solid var(--line); padding:30px 34px; }
+  .row { display:grid; grid-template-columns:210px 1fr; gap:16px; align-items:center; padding:9px 0; border-top:1px solid var(--line); font-size:19px; }
+  .row b { font-weight:600; } .track { position:relative; height:30px; border-radius:8px; background:#f4efe6; }
+  .bar { position:absolute; left:0; top:6px; bottom:6px; border-radius:0 7px 7px 0; }
+  .lbl { position:absolute; top:4px; font-size:16px; font-weight:600; white-space:nowrap; }
+  .stat { font-family:"Fraunces", Georgia, serif; font-size:170px; line-height:.9; color:var(--teal); letter-spacing:-.03em; }
+  .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .mini { background:#fff; border:1px solid var(--line); border-radius:22px; padding:24px 26px; }
+  .mini .n { font:600 50px "Fraunces", Georgia, serif; color:var(--ink); } .mini .t { font-size:21px; color:#4a3d31; margin-top:6px; line-height:1.3; }
+  .src { font-size:16px; color:var(--muted); }
+  .flow { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-top:34px; }
+  .step { background:#fff; border:1px solid var(--line); border-radius:20px; padding:18px 18px 20px; position:relative; }
+  .step .i { font:600 15px "JetBrains Mono", monospace; color:var(--teal); } .step .h { font:600 23px "Fraunces", Georgia, serif; margin:6px 0 4px; } .step .d { font-size:17px; color:#5a4b3e; line-height:1.3; }
+  .cols { display:grid; grid-template-columns:1fr 1fr 1fr; gap:22px; margin-top:26px; }
+  .col { border-radius:22px; padding:22px 26px; background:#fff; border:2px solid var(--line); }
+  .col.t { border-color:var(--teal); } .col.w { border-color:var(--crit); } .col.v { border-color:var(--rx); }
+  .col h3 { margin:0 0 10px; font:600 25px "Fraunces", Georgia, serif; }
+  .col ul { margin:0; padding-left:20px; font-size:18.5px; line-height:1.45; color:#3f342a; }
+  code { font:16px "JetBrains Mono", monospace; background:#f2e9da; padding:1px 6px; border-radius:6px; }
+  .big-quote { font:600 78px/1.02 "Fraunces", Georgia, serif; letter-spacing:-.02em; }
+  .two { display:grid; grid-template-columns:1.1fr .9fr; gap:56px; align-items:start; }
+  .list { font-size:25px; line-height:1.45; color:#3f342a; margin:0; padding-left:26px; }
+  .list li { margin:8px 0; }
+  .hint { position:fixed; right:18px; bottom:14px; color:#8e7d6b; font:13px "Instrument Sans", sans-serif; }
+  .rec .hint { display:none; }
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+  <section class="slide" data-n="1">
+    <div class="two" style="grid-template-columns:1fr 640px; gap:70px; margin-top:40px">
+      <div>
+        <div class="logo"><div class="mark">R</div><div class="kicker">Alexa+ add-on · Build, Ship, Shape</div></div>
+        <h1 style="margin-top:46px">Refill</h1>
+        <div class="lede" style="margin-top:24px; font-size:44px; line-height:1.18; font-family:'Fraunces', Georgia, serif; color:var(--ink)">Keep Dad’s house stocked from a thousand miles away.</div>
+        <div class="lede" style="margin-top:22px">For the family caregiver who can’t just drop by: predicts what runs out, drafts one order you confirm, routes refills to the pharmacy, keeps the family in the loop.</div>
+        <div class="tags"><span class="tag t">Alexa+ MCP server</span><span class="tag v">MCP Apps</span><span class="tag t">Strands Agents SDK</span></div>
+      </div>
+      <div class="card" style="margin-top:20px">
+        <div style="font:600 32px 'Fraunces', Georgia, serif">Running low at Walter’s</div>
+        <div class="src" style="margin:4px 0 16px">Tucson, AZ · predicted from daily use</div>
+        <div class="row"><b>Overnight briefs</b><div class="track"><div class="bar" style="width:14%;background:var(--crit)"></div><div class="lbl" style="left:calc(14% + 10px)">3 days</div></div></div>
+        <div class="row"><b>Nutrition shakes</b><div class="track"><div class="bar" style="width:19%;background:var(--low)"></div><div class="lbl" style="left:calc(19% + 10px)">4 days</div></div></div>
+        <div class="row"><b>Lisinopril <span style="color:var(--rx);font-size:14px;border:1.5px solid var(--rx);border-radius:4px;padding:0 3px">Rx</span></b><div class="track"><div class="bar" style="width:24%;background:var(--low)"></div><div class="lbl" style="left:calc(24% + 10px)">5 days · refill due</div></div></div>
+        <div class="row"><b>Oatmeal cups</b><div class="track"><div class="bar" style="width:29%;background:var(--low)"></div><div class="lbl" style="left:calc(29% + 10px)">6 days</div></div></div>
+        <div class="row"><b>Bed underpads</b><div class="track"><div class="bar" style="width:48%;background:var(--ok)"></div><div class="lbl" style="left:calc(48% + 10px)">10 days</div></div></div>
+      </div>
+    </div>
+    <div class="foot"><span>All people and data in the demo are fictional.</span><span>1 / 4</span></div>
+  </section>
+
+  <section class="slide" data-n="2">
+    <div class="kicker">The problem · who it’s for</div>
+    <div style="display:grid; grid-template-columns:auto 1fr; gap:48px; align-items:end; margin-top:26px">
+      <div class="stat">63M</div>
+      <h2 style="padding-bottom:18px">Americans are family caregivers, nearly 50% more than in 2015.</h2>
+    </div>
+    <div class="grid3" style="margin-top:40px">
+      <div class="mini"><div class="n">1 in 4</div><div class="t">U.S. adults is a caregiver</div></div>
+      <div class="mini"><div class="n">7 in 10</div><div class="t">family caregivers also have a job</div></div>
+      <div class="mini"><div class="n">Half</div><div class="t">report a negative financial impact from caregiving</div></div>
+    </div>
+    <div class="mini" style="margin-top:22px; display:grid; grid-template-columns:auto 1fr; gap:26px; align-items:center">
+      <div style="font:600 30px 'Fraunces', Georgia, serif">Maya, Seattle → her dad Walter, 81, Tucson</div>
+      <div class="t" style="font-size:21px; color:#4a3d31">Briefs, shakes, gloves, two prescriptions, a brother nearby, a neighbor who checks in, and a group text that’s always one step behind.</div>
+    </div>
+    <div class="foot"><span class="src">Source: AARP and National Alliance for Caregiving, <i>Caregiving in the US 2025</i> (July 24, 2025).</span><span>2 / 4</span></div>
+  </section>
+
+  <section class="slide" data-n="3">
+    <div class="kicker">How it works</div>
+    <h2 style="margin-top:14px">One sentence in. The right, safe action out.</h2>
+    <div class="flow">
+      <div class="step"><div class="i">01 · ask</div><div class="h">“What’s low?”</div><div class="d">Run-out dates predicted from daily use</div></div>
+      <div class="step"><div class="i">02 · draft</div><div class="h">One order</div><div class="d">Sized for 2 weeks, budget-checked, no duplicates</div></div>
+      <div class="step"><div class="i">03 · confirm</div><div class="h">Tap to place</div><div class="d">Nothing is bought without Maya’s OK</div></div>
+      <div class="step"><div class="i">04 · refill</div><div class="h">Pharmacy request</div><div class="d">Explicit approval; quantity locked to the Rx</div></div>
+      <div class="step"><div class="i">05 · share</div><div class="h">Family digest</div><div class="d">Deliveries, pickups, budget, what’s next</div></div>
+    </div>
+    <div class="cols">
+      <div class="col t"><h3>Alexa+ add-on</h3><ul><li>Self-hosted MCP server, spec <code>2025-11-25</code>, Streamable HTTP</li><li>OAuth 2.1 + PKCE account linking, protected resource metadata</li><li>4 MCP Apps: timeline, checkout, pharmacist, digest</li><li>Agent Skill: <code>skills/refill-caregiver</code></li></ul></div>
+      <div class="col v"><h3>Strands Agents SDK</h3><ul><li>TypeScript <code>Agent</code> with <code>McpClient</code> over Streamable HTTP</li><li><code>OpenAIModel</code> (Qwen3.8-27B)</li><li>Hooks stream every MCP call and verdict to the display</li><li>Steering when a required tool is skipped</li></ul></div>
+      <div class="col w"><h3>Guardrails in code</h3><ul><li>Purchases need caregiver confirmation</li><li>Rx: explicit OK, quantity locked</li><li>Monthly budget cap, duplicate prevention</li><li>Medication questions → pharmacist only</li></ul></div>
+    </div>
+    <div class="foot"><span>Refill · architecture in <code>docs/architecture.png</code></span><span>3 / 4</span></div>
+  </section>
+
+  <section class="slide" data-n="4">
+    <div class="kicker">Why it matters</div>
+    <div class="two" style="margin-top:22px">
+      <div>
+        <div class="big-quote">The logistics get smaller. The calls with Dad get better.</div>
+        <ul class="list" style="margin-top:34px">
+          <li>Caregivers stop tracking pads, pills and receipts in their heads</li>
+          <li>Parents stay stocked and safe at home longer</li>
+          <li>Siblings and neighbors share the load in one weekly digest</li>
+        </ul>
+      </div>
+      <div class="card" style="margin-top:8px">
+        <div style="font:600 30px 'Fraunces', Georgia, serif">Beyond the hackathon</div>
+        <ul class="list" style="font-size:22px; margin-top:12px">
+          <li><b>Caregiver subscription</b> for families managing a parent’s home</li>
+          <li><b>Retailer and pharmacy partnerships</b>: one consolidated order, fewer missed refills</li>
+          <li><b>Next:</b> Alexa+ checkout via Partner Wallet, real pharmacy refill APIs, a per-account household store</li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot"><span>Refill · built during the Amazon Developer Hackathon · demo data fictional</span><span>4 / 4</span></div>
+  </section>
+
+</div>
+<div class="hint">← → to navigate</div>
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const params = new URLSearchParams(location.search);
+  if (params.get('rec')) document.body.classList.add('rec');
+  let i = Math.min(Math.max(parseInt(params.get('s') || '1', 10) - 1, 0), slides.length - 1);
+  const show = () => { slides.forEach((s, k) => s.classList.toggle('on', k === i)); history.replaceState(null, '', '?s=' + (i + 1) + (params.get('rec') ? '&rec=1' : '')); };
+  const fit = () => document.getElementById('deck').style.setProperty('--s', Math.min(innerWidth / 1600, innerHeight / 900));
+  addEventListener('resize', fit);
+  addEventListener('keydown', (e) => {
+    if (['ArrowRight', ' ', 'PageDown', 'Enter'].includes(e.key)) { i = Math.min(i + 1, slides.length - 1); show(); }
+    if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { i = Math.max(i - 1, 0); show(); }
+  });
+  addEventListener('click', () => { i = Math.min(i + 1, slides.length - 1); show(); });
+  fit(); show();
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Refill architecture</title>
+<style>
+  :root { --ink:#2a2119; --muted:#7c6c5c; --paper:#fbf5ea; --teal:#1d5c58; --rx:#6a55c8; --warn:#c8431a; --line:#d9c9b2; }
+  * { box-sizing: border-box; }
+  body { margin:0; width:1600px; height:1000px; background:var(--paper); color:var(--ink); font:18px/1.35 "Segoe UI", system-ui, sans-serif; padding:40px 56px; }
+  h1 { margin:0; font:600 40px/1.1 Georgia, serif; } .lede { color:var(--muted); margin:6px 0 40px; font-size:19px; }
+  .grid { position:relative; height:780px; }
+  .box { position:absolute; background:#fff; border:2px solid var(--line); border-radius:22px; padding:18px 20px; box-shadow:0 10px 24px -18px rgba(60,40,20,.5); }
+  .box h2 { margin:0 0 6px; font:600 22px Georgia, serif; } .box .tag { display:inline-block; font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .box ul { margin:6px 0 0; padding-left:18px; font-size:16px; } .box li { margin:3px 0; }
+  .two { columns:2; column-gap:28px; }
+  .teal { border-color:var(--teal); } .rx { border-color:var(--rx); } .warn { border-color:var(--warn); }
+  code { font:14.5px ui-monospace, Consolas, monospace; background:#f4ece0; padding:1px 5px; border-radius:5px; }
+  svg { position:absolute; left:0; top:0; overflow:visible; }
+  .lbl { position:absolute; font-size:14.5px; font-weight:600; background:var(--paper); padding:2px 8px; border-radius:8px; color:#4a3d31; white-space:nowrap; }
+</style>
+</head>
+<body>
+  <h1>Refill · architecture</h1>
+  <div class="lede">An Alexa+ add-on (self-hosted MCP server) plus a simulated Alexa+ display driven by a Strands agent. One Next.js app on Vercel.</div>
+  <div class="grid">
+    <svg width="1488" height="780">
+      <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8c7b69"/></marker></defs>
+      <path d="M300 185 H 426" stroke="#8c7b69" stroke-width="3" fill="none" marker-end="url(#a)"/>
+      <path d="M840 185 H 986" stroke="#8c7b69" stroke-width="3" fill="none" marker-end="url(#a)"/>
+      <path d="M635 300 V 396" stroke="#8c7b69" stroke-width="3" fill="none" marker-end="url(#a)"/>
+      <path d="M1240 330 V 416" stroke="#8c7b69" stroke-width="3" fill="none" marker-end="url(#a)"/>
+      <path d="M1240 576 V 616" stroke="#8c7b69" stroke-width="3" fill="none" marker-end="url(#a)"/>
+      <path d="M150 40 V 6 H 1240 V 36" stroke="#8c7b69" stroke-width="3" stroke-dasharray="8 6" fill="none" marker-end="url(#a)"/>
+    </svg>
+    <div class="lbl" style="left:470px; top:-8px">display’s own MCP client: resources/read (ui://) · MCP App tools/call</div>
+
+    <div class="box" style="left:0; top:40px; width:300px; height:300px">
+      <div class="tag">Simulated Alexa+ display</div><h2>Browser (Next.js)</h2>
+      <ul><li>Push-to-talk (Web Speech API) + captions</li><li>MCP Apps host: <code>AppBridge</code> renders <code>ui://</code> cards in sandboxed iframes</li><li>Card taps send <code>ui/message</code></li><li>OAuth 2.1 + PKCE account link</li></ul>
+    </div>
+    <div class="lbl" style="left:312px; top:150px">NDJSON</div>
+
+    <div class="box teal" style="left:430px; top:40px; width:410px; height:260px">
+      <div class="tag">AWS · Strands Agents SDK</div><h2>Agent route <code>/api/agent</code></h2>
+      <ul><li><code>Agent</code> + <code>OpenAIModel</code> (Qwen3.8-27B, W&amp;B Inference)</li><li><code>McpClient</code> → Refill over Streamable HTTP</li><li>Streams MCP traffic + hook verdicts to the display</li></ul>
+    </div>
+    <div class="lbl" style="left:852px; top:150px">MCP 2025-11-25</div>
+
+    <div class="box warn" style="left:430px; top:400px; width:410px; height:300px">
+      <div class="tag">Deterministic control</div><h2>Strands hooks + routing</h2>
+      <ul><li><code>BeforeToolCallEvent</code>: purchase needs caregiver confirmation</li><li>Rx refill needs explicit OK; quantity locked</li><li>Budget cap · no duplicate orders</li><li>Medication questions → pharmacist tool only</li><li>Intent routing + steering if a required tool is skipped</li><li><code>BeforeModelCallEvent</code>: step cap</li></ul>
+    </div>
+
+    <div class="box teal" style="left:990px; top:40px; width:498px; height:290px">
+      <div class="tag">Alexa+ add-on</div><h2>Refill MCP server <code>/api/mcp</code></h2>
+      <ul><li><code>@modelcontextprotocol/sdk</code> · stateless Streamable HTTP · JSON responses</li><li>401 + <code>/.well-known/oauth-protected-resource</code>; Origin check (403)</li><li>8 tools with structured output; 6 declare <code>_meta.ui.resourceUri</code></li><li>4 MCP Apps (<code>@modelcontextprotocol/ext-apps</code>)</li></ul>
+    </div>
+
+    <div class="box" style="left:990px; top:420px; width:498px; height:156px">
+      <div class="tag">Business rules · <code>lib/domain.ts</code></div>
+      <ul class="two"><li>Run-out prediction from daily use</li><li>One order sized for 14 days</li><li>Refill requests to the pharmacy</li><li>Weekly family digest</li></ul>
+    </div>
+
+    <div class="box rx" style="left:990px; top:620px; width:498px; height:130px">
+      <div class="tag">Memory across sessions</div>
+      <div style="font-size:16px">HMAC-signed, compressed household state in <code>x-refill-state</code>. Demo stand-in for a per-account database.</div>
+    </div>
+  </div>
+</body>
+</html>

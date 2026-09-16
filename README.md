@@ -119,4 +119,4 @@ See [FRICTION_LOG.md](FRICTION_LOG.md) for the problems we hit and our suggestio
 
 ## License
 
-TBD before submission.
+[AGPL-3.0](LICENSE). Commercial licences are available from the author. The Refill name and logo are not covered by the licence — see [TRADEMARKS.md](TRADEMARKS.md).

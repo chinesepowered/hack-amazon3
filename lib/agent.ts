@@ -143,7 +143,7 @@ export async function runRefillAgent(input: RunInput): Promise<void> {
     api: "chat",
     apiKey: process.env.OPENAI_API_KEY,
     modelId: process.env.OPENAI_MODEL,
-    clientConfig: { baseURL: process.env.OPENAI_BASE_URL },
+    clientConfig: { baseURL: process.env.OPENAI_BASE_URL, timeout: 60_000, maxRetries: 4 },
     params: { temperature: 0, chat_template_kwargs: { enable_thinking: false } },
   } as ConstructorParameters<typeof OpenAIModel>[0]);
 
